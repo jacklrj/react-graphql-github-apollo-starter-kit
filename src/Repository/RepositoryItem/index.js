@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import { Mutation } from 'react-apollo';
 import Link from '../../Link';
 import Button from '../../Button';
+import { REPOSITORY_FRAGMENT } from '..';
 import '../style.css';
 
 const STAR_REPOSITORY = gql`
@@ -15,6 +16,83 @@ const STAR_REPOSITORY = gql`
     }
   }
 `;
+
+const UNSTAR_REPOSITORY = gql`
+  mutation($id: ID!) {
+    removeStar(input: { starrableId: $id }) {
+      starrable {
+        id
+        viewerHasStarred
+      }
+    }
+  }
+`;
+
+const WATCH_REPOSITORY = gql`
+  mutation($id: ID!) {
+    updateSubscription (input: { subscribableId: $id, state: SUBSCRIBED }) {
+        subscribable {
+        id
+        viewerSubscription
+      }
+    }
+  }
+`;
+
+const UNWATCH_REPOSITORY = gql`
+  mutation($id: ID!) {
+    updateSubscription (input: { subscribableId: $id, state: UNSUBSCRIBED }) {
+        subscribable {
+        id
+        viewerSubscription
+      }
+    }
+  }
+`;
+
+const updateAddStar = (
+    client,
+    { data: { addStar: { starrable: { id } } } },
+) => {
+    const repository = client.readFragment({
+        id: `Repository:${id}`,
+        fragment: REPOSITORY_FRAGMENT,
+    });
+    const totalCount = repository.stargazers.totalCount + 1;
+    client.writeFragment({
+        id: `Repository:${id}`,
+        fragment: REPOSITORY_FRAGMENT,
+        data: {
+            ...repository,
+            stargazers: {
+                ...repository.stargazers,
+                totalCount,
+            },
+        },
+    });
+};
+
+const updateRemoveStar = (
+    client,
+    { data: { removeStar: { starrable: { id } } } },
+) => {
+    const repository = client.readFragment({
+        id: `Repository:${id}`,
+        fragment: REPOSITORY_FRAGMENT,
+    });
+    const totalCount = repository.stargazers.totalCount - 1;
+    client.writeFragment({
+        id: `Repository:${id}`,
+        fragment: REPOSITORY_FRAGMENT,
+        data: {
+            ...repository,
+            stargazers: {
+                ...repository.stargazers,
+                totalCount,
+            },
+        },
+    });
+};
 
 const RepositoryItem = ({
     id,
@@ -35,7 +113,7 @@ const RepositoryItem = ({
                 </h2>
                 <div>
                     {!viewerHasStarred ? (
-                        <Mutation mutation={STAR_REPOSITORY} variables={{ id }}>
+                        <Mutation mutation={STAR_REPOSITORY} variables={{ id }} update={updateAddStar}>
                             {(addStar, { data, loading, error }) => (
                                 <Button
                                     className={'RepositoryItem-title-action'}
@@ -46,9 +124,38 @@ const RepositoryItem = ({
                             )}
                         </Mutation>
                     ) : (
-                            <span>{/* Here comes your removeStar mutation */}</span>
+                            <Mutation mutation={UNSTAR_REPOSITORY} variables={{ id }} update={updateRemoveStar}>
+                                {(removeStar, { data, loading, error }) => (
+                                    <Button
+                                        className={'RepositoryItem-title-action'}
+                                        onClick={removeStar}
+                                    >
+                                        {stargazers.totalCount} Unstar
+                                </Button>
+                                )}
+                            </Mutation>
                         )}
-                    {/* Here comes your updateSubscription mutation */}
+                    {viewerSubscription === "UNSUBSCRIBED" ? (
+                        <Mutation mutation={WATCH_REPOSITORY} variables={{ id }}>
+                            {(updateSubscription, { data, loading, error }) => (
+                                <Button
+                                    className={'RepositoryItem-title-action'}
+                                    onClick={updateSubscription}
+                                >Watch
+                                </Button>
+                            )}
+                        </Mutation>
+                    ) : (
+                            <Mutation mutation={UNWATCH_REPOSITORY} variables={{ id }}>
+                                {(updateSubscription, { data, loading, error }) => (
+                                    <Button
+                                        className={'RepositoryItem-title-action'}
+                                        onClick={updateSubscription}
+                                    >Unwatch
+                                    </Button>
+                                )}
+                            </Mutation>
+                        )}
                 </div>
             </div>
             <div className="RepositoryItem-description">

@@ -15,17 +15,22 @@ const GET_CURRENT_USER = gql`
   }
 `;
 
-const GET_REPOSITORIES_OF_ORGANIZATION = gql`
-  {
-    organization(login:"the-road-to-learn-react") {
+const GET_REPOSITORIES_OF_CURRENT_USER = gql`
+  query($cursor:String) {
+    viewer {
       repositories(
         first: 5
         orderBy: { direction: DESC, field: STARGAZERS }
+        after: $cursor
       ) {
         edges {
           node {
             ...repository
           }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
         }
       }
     }
@@ -33,44 +38,10 @@ const GET_REPOSITORIES_OF_ORGANIZATION = gql`
   ${REPOSITORY_FRAGMENT}
 `;
 
-const GET_REPOSITORIES_OF_CURRENT_USER = gql`
-  {
-    viewer {
-      repositories(
-        first: 5
-        orderBy: { direction: DESC, field: STARGAZERS }
-      ) {
-        edges {
-          node {
-            id
-            name
-            url
-            descriptionHTML
-            primaryLanguage {
-              name
-            }
-            owner {
-              login
-              url
-            }
-            stargazers {
-              totalCount
-            }
-            viewerHasStarred
-            watchers {
-              totalCount
-            }
-            viewerSubscription
-          }
-        }
-      }
-    }
-  }
-`;
-
 const Profile = () =>
-    <Query query={GET_REPOSITORIES_OF_ORGANIZATION}>
-        {({ data, loading, error }) => {
+    <Query query={GET_REPOSITORIES_OF_CURRENT_USER} notifyOnNetworkStatusChange={true}
+    >
+        {({ data, loading, error, fetchMore }) => {
             if (error) {
                 return <ErrorMessage error={error} />;
             }
@@ -78,16 +49,19 @@ const Profile = () =>
             if (!data) {
                 return null;
             }
-            console.log(data);
 
-            const { viewer, organization } = data;
-            //const { organization } = data;
+            const { viewer } = data;
 
-            if (loading || !organization) {
+            if (loading && !viewer) {
                 return <Loading />;
             }
 
-            return <RepositoryList repositories={organization.repositories} />;
+            return <RepositoryList
+                loading={loading}
+                repositories={viewer.repositories}
+                fetchMore={fetchMore}
+                entry={'viewer'}
+            />;
         }}
     </Query>
 

@@ -45,12 +45,7 @@ const Profile = () =>
             if (error) {
                 return <ErrorMessage error={error} />;
             }
-
-            if (!data) {
-                return null;
-            }
-
-            const { viewer } = data;
+            const viewer = data ? data.viewer : null;
 
             if (loading && !viewer) {
                 return <Loading />;

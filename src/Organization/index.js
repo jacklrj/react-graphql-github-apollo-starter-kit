@@ -37,14 +37,11 @@ const Organization = ({ organizationName }) => (
                 return <ErrorMessage error={error} />;
             }
 
-            if (!data) {
-                return null;
-            }
-
-            const { organization } = data;
+            const organization = data ? data.organization : null;
             if (loading && !organization) {
                 return <Loading />;
             }
+
             return (
                 <RepositoryList
                     loading={loading}

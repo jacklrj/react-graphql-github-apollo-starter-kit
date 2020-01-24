@@ -6,15 +6,6 @@ import Loading from '../Loading';
 import ErrorMessage from '../Error';
 import RepositoryList, { REPOSITORY_FRAGMENT } from '../Repository';
 
-const GET_CURRENT_USER = gql`
-  {
-    viewer {
-      login
-      name
-    }
-  }
-`;
-
 const GET_REPOSITORIES_OF_CURRENT_USER = gql`
   query($cursor:String) {
     viewer {
@@ -39,26 +30,26 @@ const GET_REPOSITORIES_OF_CURRENT_USER = gql`
 `;
 
 const Profile = () =>
-    <Query query={GET_REPOSITORIES_OF_CURRENT_USER} notifyOnNetworkStatusChange={true}
-    >
-        {({ data, loading, error, fetchMore }) => {
-            if (error) {
-                return <ErrorMessage error={error} />;
-            }
-            const viewer = data ? data.viewer : null;
+  <Query query={GET_REPOSITORIES_OF_CURRENT_USER} notifyOnNetworkStatusChange={true}
+  >
+    {({ data, loading, error, fetchMore }) => {
+      if (error) {
+        return <ErrorMessage error={error} />;
+      }
+      const viewer = data ? data.viewer : null;
 
-            if (loading && !viewer) {
-                return <Loading />;
-            }
+      if (loading && !viewer) {
+        return <Loading />;
+      }
 
-            return <RepositoryList
-                loading={loading}
-                repositories={viewer.repositories}
-                fetchMore={fetchMore}
-                entry={'viewer'}
-            />;
-        }}
-    </Query>
+      return <RepositoryList
+        loading={loading}
+        repositories={viewer.repositories}
+        fetchMore={fetchMore}
+        entry={'viewer'}
+      />;
+    }}
+  </Query>
 
 // const Profile = ({ data, loading, error }) => {
 //     if (error) {

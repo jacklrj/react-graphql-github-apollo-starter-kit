@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import RepositoryItem from '../RepositoryItem';
-import Loading from '../../Loading';
 import FetchMore from '../../FetchMore';
 import Issues from '../../Issue';
 import '../style.css';
@@ -12,7 +11,7 @@ const getUpdateQuery = entry => (previousResult, { fetchMoreResult }) => {
     return {
         ...previousResult,
         [entry]: {
-            ...previousResult.organization,
+            ...previousResult[entry],
             repositories: {
                 ...previousResult[entry].repositories,
                 ...fetchMoreResult[entry].repositories,

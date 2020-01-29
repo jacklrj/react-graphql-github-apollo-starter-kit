@@ -138,6 +138,8 @@ const Issues = ({ issueState, onChangeIssueState, repositoryOwner, repositoryNam
             }
             return <IssueList
               issues={filteredRepository.issues}
+              repositoryOwner={repositoryOwner}
+              repositoryName={repositoryName}
               loading={loading}
               fetchMore={fetchMore}
             />;
@@ -148,11 +150,15 @@ const Issues = ({ issueState, onChangeIssueState, repositoryOwner, repositoryNam
   );
 }
 
-const IssueList = ({ issues, loading, fetchMore }) => (
+const IssueList = ({ issues, repositoryOwner, repositoryName, loading, fetchMore }) => (
   <>
     <div className="IssueList">
       {issues.edges.map(({ node }) => (
-        <IssueItem key={node.id} issue={node} />
+        <IssueItem
+          key={node.id}
+          issue={node}
+          repositoryOwner={repositoryOwner}
+          repositoryName={repositoryName} />
       ))}
     </div>
     <FetchMore

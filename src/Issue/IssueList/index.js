@@ -179,7 +179,7 @@ const IssueFilter = ({ repositoryOwner, repositoryName, issueState, onChangeIssu
         onClick={() =>
           onChangeIssueState(TRANSITION_STATE[issueState])
         }
-        onMouseOver={prefetchIssues(client, repositoryOwner, repositoryName, issueState)}
+        onMouseOver={() => prefetchIssues(client, repositoryOwner, repositoryName, issueState)}
       >
         {TRANSITION_LABELS[issueState]}
       </ButtonUnobtrusive>

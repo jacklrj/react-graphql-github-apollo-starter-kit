@@ -133,7 +133,20 @@ const RepositoryItem = ({
                 </h2>
                 <div>
                     {!viewerHasStarred ? (
-                        <Mutation mutation={STAR_REPOSITORY} variables={{ id }} update={updateAddStar}>
+                        <Mutation
+                            mutation={STAR_REPOSITORY}
+                            variables={{ id }}
+                            optimisticResponse={{
+                                addStar: {
+                                    __typename: 'Mutation',
+                                    starrable: {
+                                        __typename: 'Repository',
+                                        id,
+                                        viewerHasStarred: !viewerHasStarred
+                                    },
+                                },
+                            }}
+                            update={updateAddStar}>
                             {(addStar, { data, loading, error }) => (
                                 <Button
                                     className={'RepositoryItem-title-action'}
@@ -144,34 +157,51 @@ const RepositoryItem = ({
                             )}
                         </Mutation>
                     ) : (
-                            <Mutation mutation={UNSTAR_REPOSITORY} variables={{ id }} update={updateRemoveStar}>
+                            <Mutation
+                                mutation={UNSTAR_REPOSITORY}
+                                variables={{ id }}
+                                optimisticResponse={{
+                                    removeStar: {
+                                        __typename: 'Mutation',
+                                        starrable: {
+                                            __typename: 'Repository',
+                                            id,
+                                            viewerHasStarred: !viewerHasStarred
+                                        },
+                                    },
+                                }}
+                                update={updateRemoveStar}>
                                 {(removeStar, { data, loading, error }) => (
                                     <Button
                                         className={'RepositoryItem-title-action'}
                                         onClick={removeStar}
                                     >
                                         {stargazers.totalCount} Unstar
-                                </Button>
+                                    </Button>
                                 )}
                             </Mutation>
                         )}
 
-                    <Mutation mutation={UPDATE_SUBCRIPTION} variables={{
-                        id, state: isWatch(viewerSubscription)
-                            ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
-                            : VIEWER_SUBSCRIPTIONS.SUBSCRIBED,
-                    }} optimisticResponse={{
-                        updateSubscription: {
-                            __typename: 'Mutation',
-                            subscribable: {
-                                __typename: 'Repository',
-                                id,
-                                viewerSubscription: isWatch(viewerSubscription)
-                                    ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
-                                    : VIEWER_SUBSCRIPTIONS.SUBSCRIBED,
+                    <Mutation
+                        mutation={UPDATE_SUBCRIPTION}
+                        variables={{
+                            id, state: isWatch(viewerSubscription)
+                                ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
+                                : VIEWER_SUBSCRIPTIONS.SUBSCRIBED,
+                        }}
+                        optimisticResponse={{
+                            updateSubscription: {
+                                __typename: 'Mutation',
+                                subscribable: {
+                                    __typename: 'Repository',
+                                    id,
+                                    viewerSubscription: isWatch(viewerSubscription)
+                                        ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
+                                        : VIEWER_SUBSCRIPTIONS.SUBSCRIBED,
+                                },
                             },
-                        },
-                    }} update={onUpdateSubscription} >
+                        }}
+                        update={onUpdateSubscription} >
                         {(updateSubscription, { data, loading, error }) => (
                             <Button
                                 className={'RepositoryItem-title-action'}

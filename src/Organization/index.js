@@ -18,7 +18,7 @@ const GET_REPOSITORIES_OF_ORGANIZATION = gql`
         pageInfo {
             endCursor
             hasNextPage
-          }
+        }
       }
     }
   }

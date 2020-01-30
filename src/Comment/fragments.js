@@ -1,25 +1,14 @@
 import gql from 'graphql-tag';
-const REPOSITORY_FRAGMENT = gql`
-  fragment repository on Repository {
+const COMMENT_FRAGMENT = gql`
+  fragment comment on IssueComment {
     id
-    name
-    url
-    descriptionHTML
-    primaryLanguage {
-      name
-    }
-    owner {
+    author {
       login
       url
     }
-    stargazers {
-      totalCount
-    }
-    viewerHasStarred
-    watchers {
-      totalCount
-    }
-    viewerSubscription
+    createdAt
+    url
+    bodyHTML
   }
 `;
-export default REPOSITORY_FRAGMENT;
+export default COMMENT_FRAGMENT;

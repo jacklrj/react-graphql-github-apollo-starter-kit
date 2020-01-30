@@ -7,6 +7,8 @@ import Loading from '../../Loading';
 import ErrorMessage from '../../Error';
 import CommentItem from '../CommentItem';
 import FetchMore from '../../FetchMore';
+import AddComment from '../AddComment';
+import COMMENT_FRAGMENT from '../fragments';
 
 import '../style.css';
 
@@ -17,14 +19,7 @@ const GET_COMMENTS_OF_ISSUE = gql`
         comments(first: 5,  after: $cursor) {
           edges {
             node {
-              id
-              author {
-                login
-                url
-              }
-              createdAt
-              url
-              bodyHTML
+              ...comment
             }
           }
           pageInfo {
@@ -35,6 +30,7 @@ const GET_COMMENTS_OF_ISSUE = gql`
       }
     }
   }
+  ${COMMENT_FRAGMENT}
 `;
 
 const prefetchComments = (
@@ -89,43 +85,45 @@ const getUpdateQuery = (previousResult, { fetchMoreResult }) => {
     };
 };
 
-const Comments = ({ repositoryOwner, repositoryName, issueNumber, isShow }) => (
-    <Fragment>
-        <Query
-            query={GET_COMMENTS_OF_ISSUE}
-            variables={{
-                repositoryOwner,
-                repositoryName,
-                issueNumber
+const Comments = ({ repositoryOwner, repositoryName, issueId, issueNumber }) => {
+    return (
+        <Fragment>
+            <Query
+                query={GET_COMMENTS_OF_ISSUE}
+                variables={{
+                    repositoryOwner,
+                    repositoryName,
+                    issueNumber
 
-            }}
-            notifyOnNetworkStatusChange={true}
-        >
-            {({ data, loading, error, fetchMore }) => {
-                if (error) {
-                    return <ErrorMessage error={error} />;
-                }
+                }}
+                notifyOnNetworkStatusChange={true}
+            >
+                {({ data, loading, error, fetchMore }) => {
+                    if (error) {
+                        return <ErrorMessage error={error} />;
+                    }
 
-                const repository = data ? data.repository : null;
+                    const repository = data ? data.repository : null;
 
-                if (loading && !repository) {
-                    return <Loading />;
-                }
+                    if (loading && !repository) {
+                        return <Loading />;
+                    }
 
-                if (!repository.issue.comments.edges.length) {
-                    return <div className="IssueList">No comments ...</div>;
-                }
+                    if (!repository.issue.comments.edges.length) {
+                        return <div className="IssueList">No comments ...</div>;
+                    }
 
-                return (
-                    <CommentList comments={repository.issue.comments} loading={loading} fetchMore={fetchMore} />
-                );
+                    return (
+                        <CommentList comments={repository.issue.comments} issueId={issueId} loading={loading} fetchMore={fetchMore} />
+                    );
 
-            }}
-        </Query>
-    </Fragment >
-);
+                }}
+            </Query>
+        </Fragment >
+    );
+}
 
-const CommentList = ({ comments, loading, fetchMore }) => (
+const CommentList = ({ comments, issueId, loading, fetchMore }) => (
     <Fragment>
         {
             comments.edges.map(({ node }) => <CommentItem key={node.id} comment={node} />)
@@ -137,7 +135,8 @@ const CommentList = ({ comments, loading, fetchMore }) => (
             updateQuery={getUpdateQuery}
             fetchMore={fetchMore}>
             Comments
-      </FetchMore>
+        </FetchMore>
+        <AddComment id={issueId} />
     </Fragment >
 );
 

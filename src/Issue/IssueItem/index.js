@@ -16,7 +16,7 @@ const IssueItem = ({ issue, repositoryOwner, repositoryName, showComments, setSh
             </h3>
             <div dangerouslySetInnerHTML={{ __html: issue.bodyHTML }} />
             {/* placeholder to render a list of comments later */}
-            {showComments && <Comments repositoryOwner={repositoryOwner} repositoryName={repositoryName} issueNumber={issue.number} />}
+            {showComments && <Comments repositoryOwner={repositoryOwner} repositoryName={repositoryName} issueId={issue.id} issueNumber={issue.number} />}
         </div>
     </div>
 );

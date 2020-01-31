@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import gql from 'graphql-tag';
 import { Query, ApolloConsumer } from 'react-apollo';
 
@@ -72,6 +72,7 @@ const getUpdateQuery = (previousResult, { fetchMoreResult }) => {
             ...previousResult.repository,
             issue: {
                 ...previousResult.repository.issue,
+                ...fetchMoreResult.repository.issue,
                 comments: {
                     ...previousResult.repository.issue.comments,
                     ...fetchMoreResult.repository.issue.comments,
@@ -123,22 +124,26 @@ const Comments = ({ repositoryOwner, repositoryName, issueId, issueNumber }) => 
     );
 }
 
-const CommentList = ({ comments, issueId, loading, fetchMore }) => (
-    <Fragment>
-        {
-            comments.edges.map(({ node }) => <CommentItem key={node.id} comment={node} />)
-        }
-        <FetchMore
-            loading={loading}
-            hasNextPage={comments.pageInfo.hasNextPage}
-            variables={{ cursor: comments.pageInfo.endCursor }}
-            updateQuery={getUpdateQuery}
-            fetchMore={fetchMore}>
-            Comments
-        </FetchMore>
-        <AddComment id={issueId} />
-    </Fragment >
-);
+const CommentList = ({ comments, issueId, loading, fetchMore }) => {
+    const [commentsState, setCommentsState] = useState(comments);
+
+    return (
+        <Fragment>
+            {
+                comments.edges.map(({ node }) => <CommentItem key={node.id} comment={node} />)
+            }
+            <FetchMore
+                loading={loading}
+                hasNextPage={comments.pageInfo.hasNextPage}
+                variables={{ cursor: comments.pageInfo.endCursor }}
+                updateQuery={getUpdateQuery}
+                fetchMore={fetchMore}>
+                Comments
+            </FetchMore>
+            <AddComment id={issueId} commentsState={commentsState} setCommentsState={setCommentsState} />
+        </Fragment >
+    );
+};
 
 export { CommentFilter };
 export default Comments;

@@ -66,7 +66,7 @@ const updateAddComment = (
     // });
 };
 
-const AddComment = ({ id }) => {
+const AddComment = ({ id, commentsState, setCommentsState }) => {
     const [commentInput, setCommentInput] = useState();
 
     const onCommentTextAreaChange = (event) => {
@@ -81,7 +81,7 @@ const AddComment = ({ id }) => {
                 variables={{
                     id, body: commentInput
                 }}
-                update={updateAddComment}>
+                update={(comments, setComments) => updateAddComment(comments, setComments)}>
 
                 {(addComment, { data, loading, error }) =>
                     <Button className={'RepositoryItem-title-action'} onClick={addComment}>Submit</Button>

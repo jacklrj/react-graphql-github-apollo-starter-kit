@@ -23,6 +23,22 @@ const ADD_COMMENT = gql`
   }
   ${COMMENT_FRAGMENT}
 `;
+
+const ISSUE_FRAGMENT = gql`
+  fragment issue on Issue {
+        comments {
+          edges {
+            node {
+              ...comment
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+}
+`;
 // const updateAddComment = (
 //     client, {data},
 //     { data: { addComment: { subject: { id } } } },
@@ -31,10 +47,11 @@ const updateAddComment = (
 
 ) => {
     console.log(data);
-    // const repository = client.readFragment({
-    //     id: `Issue:${id}`,
-    //     fragment: REPOSITORY_FRAGMENT,
-    // });
+    const repository = client.readFragment({
+        id: `Issue:${data.data.addComment.subject.id}`,
+        fragment: ISSUE_FRAGMENT,
+    });
+    console.log(repository);
     // const totalCount = repository.stargazers.totalCount - 1;
     // client.writeFragment({
     //     id: `Repository:${id}`,

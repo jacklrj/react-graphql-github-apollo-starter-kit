@@ -4,6 +4,7 @@ import { Mutation, ApolloConsumer } from 'react-apollo';
 
 import Button from '../../Button';
 import COMMENT_FRAGMENT from '../fragments';
+import { GET_COMMENTS_OF_ISSUE } from '..'
 
 //import '../style.css';
 
@@ -42,35 +43,42 @@ const ISSUE_FRAGMENT = gql`
 // const updateAddComment = (
 //     client, {data},
 //     { data: { addComment: { subject: { id } } } },
-const updateAddComment = (
-    client, data
 
-) => {
-    console.log(data);
-    const repository = client.readFragment({
-        id: `Issue:${data.data.addComment.subject.id}`,
-        fragment: ISSUE_FRAGMENT,
-    });
-    console.log(repository);
-    // const totalCount = repository.stargazers.totalCount - 1;
-    // client.writeFragment({
-    //     id: `Repository:${id}`,
-    //     fragment: REPOSITORY_FRAGMENT,
-    //     data: {
-    //         ...repository,
-    //         stargazers: {
-    //             ...repository.stargazers,
-    //             totalCount
-    //         }
-    //     }
-    // });
-};
 
-const AddComment = ({ id, commentsState, setCommentsState }) => {
+const AddComment = ({ repositoryOwner, repositoryName, issueNumber, issueId, cursor }) => {
     const [commentInput, setCommentInput] = useState();
 
     const onCommentTextAreaChange = (event) => {
         setCommentInput(event.target.value);
+    };
+
+    const updateAddComment = (
+        client, data
+
+    ) => {
+        console.log(data);
+        var t = {
+            query: GET_COMMENTS_OF_ISSUE,
+            variables: { repositoryOwner, repositoryName, issueNumber, cursor }
+        };
+        console.log(t);
+        const comments = client.readQuery({
+            query: GET_COMMENTS_OF_ISSUE,
+            variables: { repositoryOwner, repositoryName, issueNumber, cursor }
+        });
+        console.log(comments);
+        // const totalCount = repository.stargazers.totalCount - 1;
+        // client.writeFragment({
+        //     id: `Repository:${id}`,
+        //     fragment: REPOSITORY_FRAGMENT,
+        //     data: {
+        //         ...repository,
+        //         stargazers: {
+        //             ...repository.stargazers,
+        //             totalCount
+        //         }
+        //     }
+        // });
     };
 
     return (
@@ -79,7 +87,7 @@ const AddComment = ({ id, commentsState, setCommentsState }) => {
             <Mutation
                 mutation={ADD_COMMENT}
                 variables={{
-                    id, body: commentInput
+                    id: issueId, body: commentInput
                 }}
                 update={(comments, setComments) => updateAddComment(comments, setComments)}>
 

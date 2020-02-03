@@ -115,7 +115,10 @@ const Comments = ({ repositoryOwner, repositoryName, issueId, issueNumber }) => 
                     }
 
                     return (
-                        <CommentList comments={repository.issue.comments} issueId={issueId} loading={loading} fetchMore={fetchMore} />
+                        <>
+                            <CommentList comments={repository.issue.comments} issueId={issueId} loading={loading} fetchMore={fetchMore} />
+                            <AddComment repositoryOwner={repositoryOwner} repositoryName={repositoryName} issueNumber={issueNumber} issueId={issueId} cursor={repository.issue.comments.pageInfo.endCursor} />
+                        </>
                     );
 
                 }}
@@ -125,8 +128,6 @@ const Comments = ({ repositoryOwner, repositoryName, issueId, issueNumber }) => 
 }
 
 const CommentList = ({ comments, issueId, loading, fetchMore }) => {
-    const [commentsState, setCommentsState] = useState(comments);
-
     return (
         <Fragment>
             {
@@ -140,10 +141,9 @@ const CommentList = ({ comments, issueId, loading, fetchMore }) => {
                 fetchMore={fetchMore}>
                 Comments
             </FetchMore>
-            <AddComment id={issueId} commentsState={commentsState} setCommentsState={setCommentsState} />
         </Fragment >
     );
 };
 
-export { CommentFilter };
+export { CommentFilter, GET_COMMENTS_OF_ISSUE };
 export default Comments;
